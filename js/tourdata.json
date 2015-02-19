@@ -1,0 +1,101 @@
+{
+    "initId": "entry",
+    "panoramas": {
+        "entry": {
+            "imageFile": "textures/entry.jpg",
+            "audio": "audio/intro_1.mp3",
+            "navMarkers": [
+                {
+                    "target": "power",
+                    "x": -260,
+                    "y": -10,
+                    "z": -420
+                },
+                {
+                    "target": "processor",
+                    "x": 320,
+                    "y": -10,
+                    "z": -380
+                }
+            ]
+        },
+        "power": {
+            "imageFile": "textures/power.jpg",
+            "audio": "audio/power.mp3",
+            "navMarkers": [
+                {
+                    "target": "entry",
+                    "x": -220,
+                    "y": -80,
+                    "z": 440
+                }
+            ]
+        },
+        "processor": {
+            "imageFile": "textures/processor.jpg",
+            "audio": "audio/processor_1.mp3",
+            "navMarkers": [
+                {
+                    "target": "entry",
+                    "x": 350,
+                    "y": -20,
+                    "z": -350
+                },
+                {
+                    "target": "compentry",
+                    "x": 45,
+                    "y": -30,
+                    "z": -500
+                }
+            ]
+        },
+        "compentry": {
+            "imageFile": "textures/computerentry.jpg",
+            "audio": "audio/entry_1.mp3",
+            "navMarkers": [
+                {
+                    "target": "processor",
+                    "x": -40,
+                    "y": 10,
+                    "z": -500
+                },
+                {
+                    "target": "compcenter",
+                    "x": -35,
+                    "y": -10,
+                    "z": 500
+                }
+            ]
+        },
+        "compcenter": {
+            "imageFile": "textures/computercenter.jpg",
+            "audio": "audio/computer_1.mp3",
+            "navMarkers": [
+                {
+                    "target": "compentry",
+                    "x": 230,
+                    "y": 0,
+                    "z": -450
+                },
+                {
+                    "target": "cooling",
+                    "x": 90,
+                    "y": -105,
+                    "z": 480
+                }
+            ]
+        },
+        "cooling": {
+            "imageFile": "textures/cooling.jpg",
+            "audio": "audio/cooling.mp3",
+            "navMarkers": [
+                {
+                    "target": "compentry",
+                    "x": 490,
+                    "y": -50,
+                    "z": 85
+                }
+            ]
+        }
+    }
+}
