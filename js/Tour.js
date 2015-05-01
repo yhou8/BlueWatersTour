@@ -5,6 +5,11 @@ var fov = 70;
 var panoList, activePano;
 var ray;
 var id;
+var stereo;
+
+var marking;
+var fading;
+var framecount;
 
 var activePano, panoList;
 
@@ -14,8 +19,6 @@ function init(data) {
 	container = document.getElementById('container');
 	container.appendChild(element);
 	$('#container', 0).css('background-color', 'black');
-
-	effect = new THREE.StereoEffect(renderer);
 
 	scene = new THREE.Scene();
 	
@@ -35,6 +38,8 @@ function init(data) {
 	
 	element.addEventListener('click', panoClick, true);
 
+	stereo = false;
+
 	function setOrientationControls(e) {
 		if (!e.alpha) {
 			return;
@@ -42,10 +47,14 @@ function init(data) {
 		controls = new THREE.DeviceOrientationControls(camera, true);
 		controls.connect();
 		controls.update();
+	
+		renderer = new THREE.StereoEffect(renderer);
+		stereo = true;
 
 //		element.removeEventListener('click', panoSwitch, true);
 		element.addEventListener('click', fullscreen, false);
 		window.removeEventListener('deviceorientation', setOrientationControls, true);
+//		$('#audios').attr('controls', 'controls');
 	}
 	window.addEventListener('deviceorientation', setOrientationControls, true);
 
@@ -56,31 +65,48 @@ function init(data) {
 	activePano = panoList[data.initId];
 	activePano.placeInScene(scene);
 	$("<source id=\"audiosrc\" type=\"audio/mpeg\" src=\"" + activePano.audio + "\">").appendTo("#audios");
-	document.getElementById("audios").play();
+	window.addEventListener('touchstart', userInput, true);
+	window.addEventListener('click', rotate, true);
 
 
 	renderer.sortObjects = false;
 	window.addEventListener('resize', resize, false);
 	element.addEventListener('panoSwitch', panoSwitch, false);
 	setTimeout(resize, 1);
+	fading = false;
+	framecount = 0;
 	animate();
+
+}
+
+function rotate(event) {
+	for (marker of activePano.navMarkers) {
+//		marker.rotation.y -= 0.05;
+	}
+}
+
+function userInput(event) {
+	document.getElementById("audios").play();
+	window.removeEventListener('touchstart', userInput, true);
 }
 
 function panoSwitch(event) {
 	id = event.detail;
 	if (id in panoList) {
 		element.removeEventListener('panoSwitch', panoSwitch, false);
-		$('canvas', 0).fadeOut('slow', fadeOutComplete);
-		document.getElementById("audios").pause();
-		document.getElementById("audiosrc").remove();
+		$('canvas', 0).fadeOut(1500, fadeOutComplete);
 	}
 }
 
 function fadeOutComplete() {
+	document.getElementById("audios").pause();
+	document.getElementById("audiosrc").remove();
 	activePano.removeFromScene(scene);
 	activePano = panoList[id];
 	activePano.placeInScene(scene);
 	$('canvas', 0).fadeIn('fast', fadeInComplete);
+	fading = false;
+	marking = false;
 }
 
 function fadeInComplete () {
@@ -93,11 +119,13 @@ function fadeInComplete () {
 function panoClick(event) {
 	var mouse = new THREE.Vector2();
 	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-	if (mouse.x < 0) {
-		mouse.x = mouse.x * 2 + 1;
-	}
-	else {
-		mouse.x = mouse.x * 2 - 1;
+	if (stereo) {
+		if (mouse.x < 0) {
+			mouse.x = mouse.x * 2 + 1;
+		}
+		else {
+			mouse.x = mouse.x * 2 - 1;
+		}
 	}
 	mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 	ray.setFromCamera(mouse, camera);
@@ -110,9 +138,34 @@ function panoClick(event) {
 	var int = ray.intersectObjects(activePano.navMarkers, false);
 	if (int.length > 0) {
 		int[0].object.trigger(element);
+		marking = true;
 	} else {
 	}
 	render();
+}
+
+function checkMarker() {
+	var mouse = new THREE.Vector2();
+	if (stereo) {
+		mouse.x = 0.5;
+	}
+	else {
+		mouse.x = 0;
+	}
+	mouse.y = 0;
+	ray.setFromCamera(mouse,camera);
+	var int = ray.intersectObjects(activePano.navMarkers, false);
+
+	if (int.length > 0 && !fading && !marking) {
+		int[0].object.trigger(element);
+		fading = true;
+	}
+	else if (int.length == 0 && fading && !marking) {
+		fading = false;
+		$('canvas', 0).stop(true).css('opacity', 1);
+		element.addEventListener('panoSwitch', panoSwitch, false);
+	}
+
 }
 
 function resize() {
@@ -123,7 +176,6 @@ function resize() {
 	camera.updateProjectionMatrix();
 
 	renderer.setSize(width, height);
-	effect.setSize(width, height);
 }
 
 function update() {
@@ -133,13 +185,19 @@ function update() {
 }
 
 function render() {
-	effect.render(scene, camera);
+	renderer.render(scene, camera);
 }
 
 function animate() {
 	requestAnimationFrame(animate);
 	update();
 	render();
+	framecount += 1;
+	if (framecount === 10) {
+		checkMarker();
+		framecount = 0;
+	}
+
 }
 
 function fullscreen() {
@@ -154,5 +212,5 @@ function fullscreen() {
 	}
 }
 
-$.getJSON('js/tourdata.json', init);
 
+$.getJSON('js/tourdata.json', init);
