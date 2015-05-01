@@ -19,7 +19,8 @@ Panorama.prototype = {
 		this.navMarkers.length = 0;
 		for (var markerData of panoData.navMarkers) {
 			var position = new THREE.Vector3(markerData.x, markerData.y, markerData.z);
-			var marker = new NavMarker(position, markerData.target, element)
+			var rotation = new THREE.Vector3(markerData.rx, markerData.ry, markerData.rz);
+			var marker = new NavMarker(position, rotation, markerData.target, element)
 			this.navMarkers.push(marker);
 		}
 

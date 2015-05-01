@@ -88,9 +88,11 @@ function rotate(event) {
 function userInput(event) {
 	document.getElementById("audios").play();
 	window.removeEventListener('touchstart', userInput, true);
+	console.log('touch');
 }
 
 function panoSwitch(event) {
+	console.log('switch')
 	id = event.detail;
 	if (id in panoList) {
 		element.removeEventListener('panoSwitch', panoSwitch, false);
